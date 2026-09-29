@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register Instrument</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        const activeUserId = localStorage.getItem("loggedInUserId");
+        const registeredUsers = JSON.parse(localStorage.getItem("registeredUsers") || "{}");
+        if (localStorage.getItem("userRole") !== "user" || !activeUserId || !registeredUsers[activeUserId]) {
+            window.location.replace("login.html?next=index3.html");
+        }
+    </script>
+</head>
+<body>
+
+<header>
+    <h2>⚖️ Measurement  Complaince</h2>
+    <a href="indexindexindex2.html">Dashboard</a>
+</header>
+
+<form class="container form-box" id="instrumentRegistrationForm">
+
+    <h1>Register Instrument</h1>
+<label for="instrumentType">Instrument Type</label>
+<select id="instrumentType" required>
+    <option value="">Select type</option>
+    <option value="Vernier Caliper">Vernier Caliper</option>
+    <option value="Brass Scale">Brass Scale</option>
+    <option value="Measuring Tape">Measuring Tape</option>
+    <option value="Water Meter">Water Meter</option>
+    <option value="Oil Measuring Container">Oil Measuring Container</option>
+    <option value="Thermometer">Thermometer</option>
+    <option value="Stop Watch">Stop Watch</option>
+    <option value="Petrol Dispensing Unit">Petrol Dispensing Unit</option>
+    <option value="Electricity Energy Meter">Electricity Energy Meter</option>
+</select>
+
+    <label>Manufacturer</label>
+    <input id="manufacturer" type="text" placeholder="Manufacturer name" required>
+
+    <label>Model Number</label>
+    <input id="model" type="text" placeholder="Model number" required>
+
+    <label>Serial Number</label>
+    <input id="serial" type="text" placeholder="Serial number" required>
+
+    <label>Capacity</label>
+    <input id="capacity" type="text" placeholder="Example: 100 kg" required>
+
+    <label>Location</label>
+    <input id="location" type="text" placeholder="Instrument location" required>
+
+    <button type="submit">Register Instrument</button>
+
+</form>
+
+<script>
+document.getElementById("instrumentRegistrationForm").addEventListener("submit", function (event) {
+    event.preventDefault();
+    const activeUserId = localStorage.getItem("loggedInUserId");
+    const registeredUsers = JSON.parse(localStorage.getItem("registeredUsers") || "{}");
+    if (localStorage.getItem("userRole") !== "user" || !activeUserId || !registeredUsers[activeUserId]) {
+        window.location.href = "login.html?next=index3.html";
+        return;
+    }
+
+    const instruments = JSON.parse(localStorage.getItem("registeredInstruments") || "[]");
+
+    // Create a unique registration ID for every instrument registration.
+    const registrationId = "INS-" + new Date().getFullYear() + "-" + Date.now().toString().slice(-8);
+
+    instruments.push({
+        instrumentId: registrationId,
+        registrationId: registrationId,
+        userId: activeUserId,
+        type: document.getElementById("instrumentType").value.trim(),
+        manufacturer: document.getElementById("manufacturer").value.trim(),
+        model: document.getElementById("model").value.trim(),
+        serial: document.getElementById("serial").value.trim(),
+        capacity: document.getElementById("capacity").value.trim(),
+        location: document.getElementById("location").value.trim()
+    });
+    localStorage.setItem("registeredInstruments", JSON.stringify(instruments));
+    alert("Instrument registered successfully!\n\nYour Unique Registration ID is: " + registrationId + "\n\nPlease save this ID for future verification.");
+    window.location.href = "index2.html";
+});
+</script>
+</body>
+</html>

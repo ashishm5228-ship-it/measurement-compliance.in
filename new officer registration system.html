@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Officer Management System</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f2f5f9;
+        margin: 0;
+        padding: 30px;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: auto;
+    }
+
+    .box {
+        background: white;
+        padding: 25px;
+        margin-bottom: 25px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+        text-align: center;
+        color: #1d4ed8;
+    }
+
+    input {
+        width: 100%;
+        padding: 11px;
+        margin: 8px 0;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    button {
+        padding: 10px 16px;
+        margin: 8px 4px 0 0;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        background: #1d4ed8;
+        color: white;
+    }
+
+    button:hover {
+        opacity: 0.85;
+    }
+
+    .back {
+        background: #555;
+    }
+
+    .approve {
+        background: green;
+    }
+
+    .reject {
+        background: #dc2626;
+    }
+
+    .request {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-top: 12px;
+        border-radius: 7px;
+        background: #fafafa;
+    }
+
+    .pending {
+        color: orange;
+        font-weight: bold;
+    }
+
+    .approved {
+        color: green;
+        font-weight: bold;
+    }
+
+    .rejected {
+        color: red;
+        font-weight: bold;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+   
+
+    <div class="box" id="loginPage">
+
+        <h2>Officer Login</h2>
+
+        <input type="text" id="loginId"
+               placeholder="Officer ID">
+
+        <input type="password" id="loginPassword"
+               placeholder="Password">
+
+        <button onclick="loginOfficer()">
+            Login
+        </button>
+
+        <br>
+
+        <!-- REGISTRATION OPTION -->
+        <button onclick="openRegistration()">
+            Register New Officer
+        </button>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- 2. OFFICER REGISTRATION -->
+    <!-- ========================= -->
+
+    <div class="box" id="registrationPage"
+         style="display:none;">
+
+        <h2>Officer Registration</h2>
+
+        <input type="text"
+               id="regName"
+               placeholder="Full Name">
+
+        <input type="text"
+               id="regOfficerId"
+               placeholder="Officer ID">
+
+        <input type="email"
+               id="regEmail"
+               placeholder="Email">
+
+        <input type="tel"
+               id="regMobile"
+               placeholder="Mobile Number">
+
+        <input type="password"
+               id="regPassword"
+               placeholder="Password">
+
+        <button onclick="submitRegistration()">
+            Submit Registration
+        </button>
+
+        <button class="back"
+                onclick="backToLogin()">
+            Back to Login
+        </button>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- 3. OFFICER MANAGEMENT -->
+    <!-- ========================= -->
+
+    <div class="box" id="managementPage"
+         style="display:none;">
+
+        <h2>Officer Management</h2>
+
+        <div id="requestList"></div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =================================
+   OPEN REGISTRATION PAGE
+================================= */
+
+function openRegistration() {
+
+    document.getElementById("loginPage").style.display = "none";
+
+    document.getElementById("registrationPage").style.display = "block";
+
+}
+
+
+/* =================================
+   BACK TO LOGIN
+================================= */
+
+function backToLogin() {
+
+    document.getElementById("registrationPage").style.display = "none";
+
+    document.getElementById("loginPage").style.display = "block";
+
+}
+
+
+/* =================================
+   SUBMIT REGISTRATION REQUEST
+================================= */
+
+function submitRegistration() {
+
+    let name =
+        document.getElementById("regName").value;
+
+    let officerId =
+        document.getElementById("regOfficerId").value;
+
+    let email =
+        document.getElementById("regEmail").value;
+
+    let mobile =
+        document.getElementById("regMobile").value;
+
+    let password =
+        document.getElementById("regPassword").value;
+
+
+    /* Check empty fields */
+
+    if (
+        name === "" ||
+        officerId === "" ||
+        email === "" ||
+        mobile === "" ||
+        password === ""
+    ) {
+
+        alert("Please fill all fields.");
+
+        return;
+    }
+
+
+    /* Get old requests */
+
+    let requests =
+        JSON.parse(
+            localStorage.getItem("officerRequests")
+        ) || [];
+
+
+    /* Create new request */
+
+    let newRequest = {
+
+        name: name,
+
+        officerId: officerId,
+
+        email: email,
+
+        mobile: mobile,
+
+        password: password,
+
+        status: "Pending"
+
+    };
+
+
+    /* Add request */
+
+    requests.push(newRequest);
+
+
+    /* Save request */
+
+    localStorage.setItem(
+        "officerRequests",
+        JSON.stringify(requests)
+    );
+
+
+    alert(
+        "Registration request sent to Officer Management."
+    );
+
+
+    /* Clear form */
+
+    document.getElementById("regName").value = "";
+
+    document.getElementById("regOfficerId").value = "";
+
+    document.getElementById("regEmail").value = "";
+
+    document.getElementById("regMobile").value = "";
+
+    document.getElementById("regPassword").value = "";
+
+
+    /* Go back to login */
+
+    backToLogin();
+
+}
+
+
+/* =================================
+   OFFICER LOGIN
+================================= */
+
+function loginOfficer() {
+
+    let id =
+        document.getElementById("loginId").value.trim().toLowerCase();
+
+    let password =
+        document.getElementById("loginPassword").value;
+
+    // Main/authorized officer account
+    const MASTER_OFFICER_ID = "ashishm5228@gmail.com";
+    const MASTER_OFFICER_PASSWORD = "123456789";
+
+    if (id === MASTER_OFFICER_ID.toLowerCase() && password === MASTER_OFFICER_PASSWORD) {
+        localStorage.setItem("userRole", "officer");
+        localStorage.setItem("loggedInOfficer", JSON.stringify({
+            name: "Ashish",
+            email: MASTER_OFFICER_ID,
+            officerId: MASTER_OFFICER_ID
+        }));
+        alert("Login successful.");
+        showManagement();
+        return;
+    }
+
+    let requests =
+        JSON.parse(
+            localStorage.getItem("officerRequests")
+        ) || [];
+
+
+    let officer = requests.find(function(item) {
+
+        return (
+            (String(item.officerId || "").toLowerCase() === id ||
+             String(item.email || "").toLowerCase() === id) &&
+            String(item.password || "") === password &&
+            String(item.status || "").toLowerCase() === "approved"
+        );
+
+    });
+
+
+    if (officer) {
+
+        alert("Login successful.");
+
+        showManagement();
+
+    } else {
+
+        alert(
+            "Invalid login or officer is not approved yet."
+        );
+
+    }
+
+}
+
+
+/* =================================
+   SHOW OFFICER MANAGEMENT
+================================= */
+
+function showManagement() {
+
+    document.getElementById("loginPage").style.display = "none";
+
+    document.getElementById("registrationPage").style.display = "none";
+
+    document.getElementById("managementPage").style.display = "block";
+
+    displayRequests();
+
+}
+
+
+/* =================================
+   DISPLAY REGISTRATION REQUESTS
+================================= */
+
+function displayRequests() {
+
+    let requests =
+        JSON.parse(
+            localStorage.getItem("officerRequests")
+        ) || [];
+
+
+    let list =
+        document.getElementById("requestList");
+
+
+    list.innerHTML = "";
+
+
+    if (requests.length === 0) {
+
+        list.innerHTML =
+            "<p>No registration requests.</p>";
+
+        return;
+    }
+
+
+    requests.forEach(function(request, index) {
+
+        let div =
+            document.createElement("div");
+
+        div.className = "request";
+
+
+        div.innerHTML = `
+
+            <h3>${request.name}</h3>
+
+            <p>
+                <b>Officer ID:</b>
+                ${request.officerId}
+            </p>
+
+            <p>
+                <b>Email:</b>
+                ${request.email}
+            </p>
+
+            <p>
+                <b>Mobile:</b>
+                ${request.mobile}
+            </p>
+
+            <p>
+                <b>Status:</b>
+                <span class="${request.status.toLowerCase()}">
+                    ${request.status}
+                </span>
+            </p>
+
+            ${
+                request.status === "Pending"
+                ?
+
+                `
+                <button class="approve"
+                        onclick="approveOfficer(${index})">
+                    Approve
+                </button>
+
+                <button class="reject"
+                        onclick="rejectOfficer(${index})">
+                    Reject
+                </button>
+                `
+
+                :
+
+                ""
+            }
+
+        `;
+
+
+        list.appendChild(div);
+
+    });
+
+}
+
+
+/* =================================
+   APPROVE OFFICER
+================================= */
+
+function approveOfficer(index) {
+
+    let requests =
+        JSON.parse(
+            localStorage.getItem("officerRequests")
+        ) || [];
+
+
+    requests[index].status = "Approved";
+
+
+    localStorage.setItem(
+        "officerRequests",
+        JSON.stringify(requests)
+    );
+
+
+    displayRequests();
+
+
+    alert("Officer approved successfully.");
+
+}
+
+
+/* =================================
+   REJECT OFFICER
+================================= */
+
+function rejectOfficer(index) {
+
+    let requests =
+        JSON.parse(
+            localStorage.getItem("officerRequests")
+        ) || [];
+
+
+    requests[index].status = "Rejected";
+
+
+    localStorage.setItem(
+        "officerRequests",
+        JSON.stringify(requests)
+    );
+
+
+    displayRequests();
+
+
+    alert("Officer registration rejected.");
+
+}
+
+</script>
+
+</body>
+</html>

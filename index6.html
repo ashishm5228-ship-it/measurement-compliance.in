@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inspection</title>
+ <link rel="stylesheet" href="style.css">
+    <script>
+        if (localStorage.getItem("userRole") !== "officer") {
+            window.location.replace("index.html");
+        }
+    </script>
+</head>
+<body>
+
+<header>
+    <h2>⚖️ Inspection Portal</h2>
+    <a href="index5.html">Dashboard</a>
+</header>
+
+<div class="container form-box">
+
+    <h1>Instrument Inspection</h1>
+
+    <div class="info" id="applicationInfo">
+        <p>Loading application details...</p>
+    </div>
+
+    <label>Inspection Observations</label>
+    <textarea id="observations" placeholder="Enter inspection observations"></textarea>
+
+    <label>Upload Photos</label>
+    <input type="file" accept="image/*">
+
+    <label>Upload Documents</label>
+    <input type="file">
+
+    <label>Verification Result</label>
+
+    <div>
+        <input type="radio" name="result" value="pass"> PASS
+        <br>
+        <input type="radio" name="result" value="reject"> REJECT
+    </div>
+
+    <label>Remarks</label>
+    <textarea id="remarks" placeholder="Enter remarks"></textarea>
+
+    <button onclick="submitInspection()">
+        Submit Result
+    </button>
+
+</div>
+
+<script>
+const selectedApplicationId = localStorage.getItem("selectedApplication");
+const application = selectedApplicationId && JSON.parse(
+    localStorage.getItem("application_" + selectedApplicationId)
+);
+
+const applicationInfo = document.getElementById("applicationInfo");
+
+if (!application) {
+    applicationInfo.innerHTML = "<p>No application was selected. Please return to the dashboard.</p>";
+    document.querySelector("button").disabled = true;
+} else {
+    const fields = [
+        ["Application ID", application.applicationId],
+        ["User ID", application.userId],
+        ["Applicant", application.name],
+        ["Business / Shop", application.business],
+        ["Address", application.address],
+        ["Instrument", application.instrument],
+        ["Manufacturer", application.manufacturer],
+        ["Model", application.model],
+        ["Serial Number", application.serial],
+        ["Capacity", application.capacity],
+        ["Verification Type", application.verificationType],
+        ["Preferred Date", application.date]
+    ];
+
+    applicationInfo.replaceChildren(...fields.map(([label, value]) => {
+        const paragraph = document.createElement("p");
+        const heading = document.createElement("b");
+        heading.textContent = label + ": ";
+        paragraph.append(heading, value || "Not provided");
+        return paragraph;
+    }));
+}
+
+function submitInspection() {
+    if (!application) return;
+
+    const result = document.querySelector('input[name="result"]:checked');
+    if (!result) {
+        alert("Please select a verification result.");
+        return;
+    }
+
+    application.status = result.value === "pass" ? "Verified" : "Rejected";
+    application.inspection = {
+        result: result.value,
+        observations: document.getElementById("observations").value.trim(),
+        remarks: document.getElementById("remarks").value.trim(),
+        inspectedOn: new Date().toISOString()
+    };
+    localStorage.setItem("application_" + application.applicationId, JSON.stringify(application));
+
+    if (result.value === "reject") {
+        alert("Inspection result saved as rejected.");
+        window.location.href = "index5.html";
+        return;
+    }
+
+    const certificate = {
+        certificateNumber: "LM-" + new Date().getFullYear() + "-" + application.applicationId.replace("APP", ""),
+        applicationId: application.applicationId,
+        issueDate: new Date().toISOString()
+    };
+    localStorage.setItem("certificate_" + application.applicationId, JSON.stringify(certificate));
+    application.certificateIssued = true;
+    localStorage.setItem("application_" + application.applicationId, JSON.stringify(application));
+    localStorage.setItem("newCertificateFor_" + application.userId, application.applicationId);
+    alert("Inspection passed. The certificate has been generated for the applicant.");
+    window.location.href = "index5.html";
+}
+</script>
+</body>
+</html>

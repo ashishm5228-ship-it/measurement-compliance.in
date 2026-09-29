@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Digital Certificate</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        const activeUserId = localStorage.getItem("loggedInUserId");
+        const registeredUsers = JSON.parse(localStorage.getItem("registeredUsers") || "{}");
+        if (localStorage.getItem("userRole") !== "user" || !activeUserId || !registeredUsers[activeUserId]) {
+            window.location.replace("1.html");
+        }
+    </script>
+</head>
+<body>
+
+<header>
+    <h2>⚖️ Measurement  Complaince</h2>
+    <a href="owner-dashboard.html">Dashboard</a>
+</header>
+
+<div class="certificate">
+
+    <h1>VERIFICATION CERTIFICATE</h1>
+
+    <hr>
+
+    <h3>Certificate No: <span id="certificate-number">LM-2026-00125</span></h3>
+
+    <p><b>Instrument:</b> <span id="instrument">Digital Weighing Scale</span></p>
+    <p><b>Manufacturer:</b> <span id="manufacturer">XYZ Ltd.</span></p>
+    <p><b>Model:</b> <span id="model">XYZ-100</span></p>
+    <p><b>Serial No:</b> <span id="serial-number">458921</span></p>
+    <p><b>Capacity:</b> <span id="capacity">100 kg</span></p>
+
+    <br>
+
+    <p><b>Issue Date:</b> <time id="issue-date" datetime="2026-09-10">10/09/2026</time></p>
+    <p><b>Expiry Date:</b> <time id="expiry-date"></time> <small>(valid for 5 years)</small></p>
+
+    <div class="qr">
+        <div id="certificate-qr" aria-label="Certificate QR code"></div>
+        <small>Scan to view certificate details</small>
+    </div>
+
+    <h2 class="success">✓ VERIFIED bY AUTHORITY</h2>
+
+
+    <a href="verify.html">
+        <button>Verify Certificate</button>
+    </a>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+    const issueDate = document.getElementById("issue-date");
+    const expiryDate = document.getElementById("expiry-date");
+    const expiry = new Date(`${issueDate.dateTime}T00:00:00`);
+
+    expiry.setFullYear(expiry.getFullYear() + 5);
+    expiryDate.dateTime = expiry.toISOString().slice(0, 10);
+    expiryDate.textContent = expiry.toLocaleDateString("en-GB");
+
+    // The certificate number and displayed fields make the QR data unique.
+    const certificateDetails = {
+        certificateNumber: document.getElementById("certificate-number").textContent.trim(),
+        instrument: document.getElementById("instrument").textContent.trim(),
+        manufacturer: document.getElementById("manufacturer").textContent.trim(),
+        model: document.getElementById("model").textContent.trim(),
+        serialNumber: document.getElementById("serial-number").textContent.trim(),
+        capacity: document.getElementById("capacity").textContent.trim(),
+        issueDate: issueDate.dateTime,
+        expiryDate: expiryDate.dateTime
+    };
+
+    new QRCode(document.getElementById("certificate-qr"), {
+        text: JSON.stringify(certificateDetails),
+        width: 200,
+        height: 200,
+        correctLevel: QRCode.CorrectLevel.M
+    });
+</script>
+
+</body>
+</html>

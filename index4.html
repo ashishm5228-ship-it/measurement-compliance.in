@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verification Application</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        const activeUserId = localStorage.getItem("loggedInUserId");
+        const registeredUsers = JSON.parse(localStorage.getItem("registeredUsers") || "{}");
+        if (localStorage.getItem("userRole") !== "user" || !activeUserId || !registeredUsers[activeUserId]) {
+            window.location.replace("login.html?next=index4.html");
+        }
+    </script>
+</head>
+
+<body>
+
+<header>
+    <h2>⚖️ Measurement  Complaince</h2>
+    <a href="index2.html">Dashboard</a>
+</header>
+
+<form class="container form-box" id="verificationApplicationForm" onsubmit="submitApplication(event)">
+
+    <h1>Verification / Certification Application</h1>
+
+    <label for="name">Applicant Name</label>
+    <input type="text" id="name" placeholder="Enter full name" required>
+
+    <label for="mobile">Mobile Number</label>
+    <input type="tel" id="mobile" placeholder="Enter mobile number" required>
+
+    <label for="business">Business / Shop Name</label>
+    <input type="text" id="business" placeholder="Enter business name" required>
+
+    <label for="address">Address</label>
+    <textarea id="address" placeholder="Enter address" required></textarea>
+
+    <label for="instrument">Instrument Type</label>
+    <input type="text" id="instrument" placeholder="Example: Weighing Scale" required>
+
+    <label for="instrument">unique registration number</label>
+    <input type="text" id="number" placeholder="Example: registration number" required>
+
+    <label for="manufacturer">Manufacturer</label>
+    <input type="text" id="manufacturer" placeholder="Manufacturer name" required>
+
+    <label for="model">Model Number</label>
+    <input type="text" id="model" placeholder="Model number" required>
+
+    <label for="serial">Serial Number</label>
+    <input type="text" id="serial" placeholder="Serial number" required>
+
+    <label for="capacity">Capacity</label>
+    <input type="text" id="capacity" placeholder="Example: 100 kg" required>
+
+    <label for="verificationType">Verification Type</label>
+    <select id="verificationType" required><option>New Verification</option><option>Re-Verification</option></select>
+
+    <label for="date">Preferred Verification Date</label>
+    <input type="date" id="date" required>
+
+    
+
+    <button type="submit">
+        Submit Application
+    </button>
+
+</form>
+
+<script>
+
+function submitApplication(event) {
+    event.preventDefault();
+
+    const activeUserId = localStorage.getItem("loggedInUserId");
+    const registeredUsers = JSON.parse(localStorage.getItem("registeredUsers") || "{}");
+    const isRegisteredUser = localStorage.getItem("userRole") === "user" &&
+        activeUserId && registeredUsers[activeUserId];
+
+    if (!isRegisteredUser) {
+        alert("Please create an account or log in before submitting an application.");
+        window.location.href = "login.html?next=index4.html";
+        return;
+    }
+
+    let application = {
+
+        applicationId: "APP" + Date.now(),
+        userId: activeUserId,
+
+        name: document.getElementById("name").value,
+        mobile: document.getElementById("mobile").value,
+        business: document.getElementById("business").value,
+        address: document.getElementById("address").value,
+
+        instrument: document.getElementById("instrument").value,
+        manufacturer: document.getElementById("manufacturer").value,
+        model: document.getElementById("model").value,
+        serial: document.getElementById("serial").value,
+        capacity: document.getElementById("capacity").value,
+
+        verificationType:
+            document.getElementById("verificationType").value,
+
+        date: document.getElementById("date").value,
+
+        status: "Pending"
+    };
+
+    // Save application
+    localStorage.setItem(
+        "application_" + application.applicationId,
+        JSON.stringify(application)
+    );
+
+    // Save application ID for officer dashboard
+    let applications =
+        JSON.parse(localStorage.getItem("applications")) || [];
+
+    applications.push(application.applicationId);
+
+    localStorage.setItem(
+        "applications",
+        JSON.stringify(applications)
+    );
+
+    alert(
+        "Application submitted successfully!\nApplication ID: "
+        + application.applicationId
+    );
+
+    window.location.href = "index.html";
+}
+
+</script>
+
+</body>
+</html>

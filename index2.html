@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        const activeUserId = localStorage.getItem("loggedInUserId");
+        const registeredUsers = JSON.parse(localStorage.getItem("registeredUsers") || "{}");
+        if (localStorage.getItem("userRole") !== "user" || !activeUserId || !registeredUsers[activeUserId]) {
+            window.location.replace("login.html");
+        }
+    </script>
+    <style>
+        span{
+            font-size: 30px;
+        font-family: 'Courier New', Courier, monospace;     
+
+    }
+    </style>
+</head>
+<body>
+<header>
+    <h2>⚖️ Measurement  Complaince</h2>
+    <a href="index.html" onclick="localStorage.removeItem('userRole'); localStorage.removeItem('loggedInUserId')">Logout</a>
+</header>
+
+<main class="container">
+    <h1>Owner Dashboard</h1>
+    <p>Welcome, <span id="userName"></span>. Choose an option to continue.</p>
+    <div class="certificate-notice" id="certificateNotice" hidden></div>
+
+    <div class="dashboard-actions" aria-label="Application actions">
+        <a class="dashboard-action" href="index3.html">Register Instrument</a>
+        <a class="dashboard-action" href="index4.html">Apply for Verification</a>
+        <button class="dashboard-action" type="button" onclick="openCertificate()">Download Certificate</button>
+    </div>
+
+    <div class="cards">
+        <div class="card"><h3 id="totalApplications">0</h3><p>Total Applications</p></div>
+        <div class="card"><h3 id="pendingApplications">0</h3><p>Pending</p></div>
+        <div class="card"><h3 id="verifiedApplications">0</h3><p>Verified</p></div>
+        <div class="card"><h3 id="rejectedApplications">0</h3><p>Rejected</p></div>
+    </div>
+
+    <h2>My Applications</h2>
+    <table>
+        <thead><tr><th>Application ID</th><th>Instrument</th><th>Status</th><th>Certificate</th></tr></thead>
+        <tbody id="ownerApplicationTable"></tbody>
+    </table>
+</main>
+
+<script>
+const applicationIds = JSON.parse(localStorage.getItem("applications") || "[]");
+const applications = applicationIds
+    .map((id) => JSON.parse(localStorage.getItem("application_" + id)))
+    .filter((application) => application && application.userId === activeUserId);
+const ownerTable = document.getElementById("ownerApplicationTable");
+const counts = { Pending: 0, Verified: 0, Rejected: 0 };
+
+document.getElementById("userName").textContent = activeUserId;
+const newCertificateId = localStorage.getItem("newCertificateFor_" + activeUserId);
+if (newCertificateId) {
+    const notice = document.getElementById("certificateNotice");
+    const certificateLink = document.createElement("a");
+    certificateLink.href = "8.html?applicationId=" + encodeURIComponent(newCertificateId);
+    certificateLink.textContent = "Open and download certificate";
+    notice.append("Your verification certificate is ready. ", certificateLink);
+    notice.hidden = false;
+}
+applications.forEach((application) => {
+    counts[application.status] = (counts[application.status] || 0) + 1;
+    const row = document.createElement("tr");
+    [application.applicationId, application.instrument || "Not provided", application.status].forEach((value) => {
+        const cell = document.createElement("td");
+        cell.textContent = value;
+        row.appendChild(cell);
+    });
+    const certificateCell = document.createElement("td");
+    if (application.status === "Verified" && localStorage.getItem("certificate_" + application.applicationId)) {
+        const link = document.createElement("a");
+        link.href = "8.html?applicationId=" + encodeURIComponent(application.applicationId);
+        link.textContent = "Open certificate";
+        certificateCell.appendChild(link);
+    } else {
+        certificateCell.textContent = "Available after approval";
+    }
+    row.appendChild(certificateCell);
+    ownerTable.appendChild(row);
+});
+
+if (!applications.length) {
+    ownerTable.innerHTML = '<tr><td colspan="4">You have not submitted any applications yet.</td></tr>';
+}
+
+document.getElementById("totalApplications").textContent = applications.length;
+document.getElementById("pendingApplications").textContent = counts.Pending;
+document.getElementById("verifiedApplications").textContent = counts.Verified;
+document.getElementById("rejectedApplications").textContent = counts.Rejected;
+
+function openCertificate() {
+    const verifiedApplication = applications.find((application) =>
+        application.status === "Verified" && localStorage.getItem("certificate_" + application.applicationId)
+    );
+    if (!verifiedApplication) {
+        alert("A certificate will be available here after an officer verifies one of your applications.");
+        return;
+    }
+    window.location.href = "8.html?applicationId=" + encodeURIComponent(verifiedApplication.applicationId);
+}
+</script>
+</body>
+</html>

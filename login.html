@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login Page</title>
+  
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #141e30, #adbfd3);
+        }
+
+        .login-box {
+            width: 350px;
+            padding: 35px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .login-box h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #243b55;
+        }
+
+        .input-box {
+            margin-bottom: 20px;
+        }
+
+        .input-box label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        .input-box input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .input-box input:focus {
+            border-color: #243b55;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #243b55;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .login-btn:hover {
+            background: #141e30;
+        }
+
+        .register {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .register a {
+            color: #243b55;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .application-notice {
+            display: none;
+            margin: 0 0 20px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #eef6ff;
+            color: #123b66;
+            font-size: 14px;
+            line-height: 1.45;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-box">
+
+        <h2>User Login</h2>
+        <p class="application-notice" id="applicationNotice"></p>
+
+        <form id="ownerLoginForm">
+            <div class="input-box">
+                <label for="loginUserId">User ID</label>
+                <input id="loginUserId" type="text" placeholder="Enter your user ID" required autocomplete="username">
+            </div>
+
+            <div class="input-box">
+                <label for="loginPassword">Password</label>
+                <input id="loginPassword" type="password" placeholder="Enter your password" required autocomplete="current-password">
+            </div>
+
+            <button type="submit" class="login-btn">
+                Login
+            </button>
+        </form>
+
+        <div class="register">
+            Don't have an account? Create one below.
+        </div>
+
+        <hr style="margin: 22px 0; border: 0; border-top: 1px solid #ddd;">
+
+        <h2 style="font-size: 20px;">Create User Account</h2>
+        <form id="registrationForm">
+            <div class="input-box">
+                <label for="registerUserId">Choose User ID</label>
+                <input id="registerUserId" type="text" placeholder="Example: rahul123" required autocomplete="username">
+            </div>
+
+            <div class="input-box">
+                <label for="registerPassword">Choose Password</label>
+                <input id="registerPassword" type="password" minlength="6" placeholder="At least 6 characters" required autocomplete="new-password">
+            </div>
+
+            <div class="input-box">
+                <label for="confirmPassword">Confirm Password</label>
+                <input id="confirmPassword" type="password" minlength="6" placeholder="Enter the password again" required autocomplete="new-password">
+            </div>
+
+            <button type="submit" class="login-btn">Create Account</button>
+        </form>
+
+    </div>
+
+    <script>
+        function getNextPage() {
+            const next = new URLSearchParams(window.location.search).get("next");
+            // Only permit application pages in this prototype; do not redirect to arbitrary URLs.
+            return next === "index3.html" || next === "index2.html" ? next : "index2.html";
+        }
+
+        const requestedPage = new URLSearchParams(window.location.search).get("next");
+        if (requestedPage === "index3.html" || requestedPage === "index2.html") {
+            const action = requestedPage === "index3.html"
+                ? "register an instrument"
+                : "apply for verification";
+            const notice = document.getElementById("applicationNotice");
+            notice.textContent = "To " + action + ", sign in with your User ID and password. New visitor? Create an account below first.";
+            notice.style.display = "block";
+        }
+
+        function getUsers() {
+            return JSON.parse(localStorage.getItem("registeredUsers") || "{}");
+        }
+
+        function saveUsers(users) {
+            localStorage.setItem("registeredUsers", JSON.stringify(users));
+        }
+
+        document.getElementById("ownerLoginForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            const userId = document.getElementById("loginUserId").value.trim().toLowerCase();
+            const password = document.getElementById("loginPassword").value;
+            const users = getUsers();
+
+            if (!users[userId] || users[userId].password !== password) {
+                alert("Incorrect user ID or password. Please try again or create an account.");
+                return;
+            }
+
+            localStorage.setItem("loggedInUserId", userId);
+            localStorage.setItem("userRole", "user");
+            window.location.href = getNextPage();
+        });
+
+        document.getElementById("registrationForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            const userId = document.getElementById("registerUserId").value.trim().toLowerCase();
+            const password = document.getElementById("registerPassword").value;
+            const confirmation = document.getElementById("confirmPassword").value;
+            const users = getUsers();
+
+            if (!/^[a-z0-9_.-]{3,30}$            /.test(userId)) {
+                alert("User ID must be 3-30 characters and use only letters, numbers, dots, hyphens, or underscores.");
+                return;
+            }
+            if (password !== confirmation) {
+                alert("The passwords do not match.");
+                return;
+            }
+            if (users[userId]) {
+                alert("This user ID is already registered. Please log in instead.");
+                return;
+            }
+
+            users[userId] = { password: password };
+            saveUsers(users);
+            alert("Account created. You can now log in with your user ID and password.");
+            document.getElementById("ownerLoginForm").reset();
+            document.getElementById("registrationForm").reset();
+            document.getElementById("loginUserId").value = userId;
+            document.getElementById("loginPassword").focus();
+        });
+    </script>
+</body>
+</html>

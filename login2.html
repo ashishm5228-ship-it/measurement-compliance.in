@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Officer Login</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .portal-nav {
+            background: #123b66;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 20px;
+        }
+
+        .portal-nav a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 9px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .portal-nav a:hover,
+        .portal-nav a[aria-current="page"] {
+            background: #e59b00;
+        }
+       
+    </style>
+</head>
+<body>
+   
+
+    <div class="container form-box">
+        <h1>Officer Login</h1>
+        <form id="officerLoginForm">
+            <label for="officerLoginId">Officer ID or Official Email</label>
+            <input id="officerLoginId" type="text" required placeholder="Enter Officer ID or official email" autocomplete="username">
+
+            <label for="officerPassword">Password</label>
+            <input id="officerPassword" type="password" required placeholder="Enter password">
+
+            <button type="submit">Login as Officer</button>    
+            
+        </form>
+    </div>
+<div class="anikesh">
+       <a href="new officer registration system.html">
+    <button>
+        New officer registration
+    </button>
+   </a>
+</div>
+    <script>
+        // ===== LEGACY OFFICER ACCOUNT =====
+        // This keeps the old login working even if it was not saved in officerRequests.
+        // You can change these two values to your original old credentials if needed.
+        const LEGACY_OFFICER_ID = "ashishm5228@gmail.com";
+        const LEGACY_OFFICER_PASSWORD = "123456789";
+        const LEGACY_OFFICER_NAME = "Ashish";
+        const LEGACY_OFFICER_EMAIL = "ashishm5228@gmail.com";
+
+        function getOfficerRequests(){
+            try {
+                const data = JSON.parse(localStorage.getItem("officerRequests") || "[]");
+                return Array.isArray(data) ? data : [];
+            } catch(e) {
+                return [];
+            }
+        }
+
+        function saveOfficerSession(officer){
+            localStorage.setItem("userRole", "officer");
+            localStorage.setItem("loggedInOfficer", JSON.stringify({
+                name: officer.name,
+                email: officer.email,
+                officerId: officer.officerId
+            }));
+        }
+
+        document.getElementById("officerLoginForm").addEventListener("submit", function(event){
+            event.preventDefault();
+
+            const loginValue = document.getElementById("officerLoginId").value.trim();
+            const loginValueLower = loginValue.toLowerCase();
+            const password = document.getElementById("officerPassword").value;
+            const requests = getOfficerRequests();
+
+            // 1. Check registered/approved officers.
+            const officer = requests.find(o =>
+                (String(o.email || "").toLowerCase() === loginValueLower ||
+                 String(o.officerId || "").toLowerCase() === loginValueLower) &&
+                String(o.password || "") === password &&
+                String(o.status || "").toLowerCase() === "approved"
+            );
+
+            if (officer) {
+                saveOfficerSession(officer);
+                window.location.href = "indexindex5.html";
+                return;
+            }
+
+            // 2. Keep compatibility with the old officer account.
+            const oldAccountMatches =
+                loginValueLower === LEGACY_OFFICER_ID.toLowerCase() &&
+                password === LEGACY_OFFICER_PASSWORD;
+
+            if (oldAccountMatches) {
+                const legacyOfficer = {
+                    name: LEGACY_OFFICER_NAME,
+                    email: LEGACY_OFFICER_EMAIL,
+                    officerId: LEGACY_OFFICER_ID
+                };
+
+                saveOfficerSession(legacyOfficer);
+                window.location.href = "index5.html";
+                return;
+            }
+
+            alert("Invalid Officer ID/email or password. If this is your old account, update LEGACY_OFFICER_ID and LEGACY_OFFICER_PASSWORD in loginindex2.html with your original credentials.");
+        });
+    </script>
+</body>
+</html>

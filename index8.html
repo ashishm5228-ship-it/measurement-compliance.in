@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Verified Certificate</title>
+
+    <script>
+        const activeRole = localStorage.getItem("userRole");
+        const activeUserId = localStorage.getItem("loggedInUserId");
+        const registeredUsers = JSON.parse(localStorage.getItem("registeredUsers") || "{}");
+        if (activeRole !== "user" || !activeUserId || !registeredUsers[activeUserId]) {
+            window.location.replace("1.html");
+        }
+    </script>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            font-family: "Georgia", serif;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #eef2f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+
+        /* MAIN CERTIFICATE */
+
+        .certificate {
+            width: 900px;
+            max-width: 100%;
+            background: white;
+            padding: 12px;
+            border: 3px solid #173b63;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.18);
+        }
+
+        .certificate-inner {
+            border: 1px solid #b89b52;
+            padding: 35px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* WATERMARK */
+
+        .certificate-inner::before {
+            content: "⚖️";
+            position: absolute;
+            font-size: 280px;
+            color: rgba(23,59,99,0.035);
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* HEADER */
+
+        .header {
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 48px;
+        }
+
+        .government {
+            font-size: 14px;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        .department {
+            font-size: 22px;
+            color: #173b63;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .system {
+            font-size: 13px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* TITLE */
+
+        .title {
+            text-align: center;
+            margin: 25px 0;
+        }
+
+        .title h1 {
+            color: #173b63;
+            font-size: 38px;
+            letter-spacing: 3px;
+            margin: 5px;
+        }
+
+        .title p {
+            color: #b08b35;
+            font-size: 15px;
+            letter-spacing: 2px;
+        }
+
+        /* VERIFIED BADGE */
+
+        .verified {
+            width: 110px;
+            height: 110px;
+            margin: 15px auto;
+            border-radius: 50%;
+            border: 5px double #b08b35;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #173b63;
+            font-weight: bold;
+            font-size: 15px;
+            background: #fffdf5;
+        }
+
+        /* CERTIFICATE NUMBER */
+
+        .certificate-number {
+            text-align: center;
+            margin: 20px;
+            font-size: 15px;
+        }
+
+        .certificate-number span {
+            color: #173b63;
+            font-weight: bold;
+        }
+
+        /* INFORMATION BOX */
+
+        .info-box {
+            border: 1px solid #d2d2d2;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .info-title {
+            text-align: center;
+            color: #173b63;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 30px;
+        }
+
+        .info {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info b {
+            color: #555;
+        }
+
+        /* VALIDITY */
+
+        .validity {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin: 25px 0;
+        }
+
+        .date-box {
+            background: #f5f7fa;
+            padding: 12px 30px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .date-box b {
+            display: block;
+            color: #173b63;
+            margin-bottom: 5px;
+        }
+
+        /* QR */
+
+        .qr-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .qr-box {
+            width: 130px;
+            height: 130px;
+            margin: auto;
+            border: 5px solid #173b63;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
+        }
+
+        .qr-box img {
+            width: 110px;
+            height: 110px;
+        }
+
+        .scan {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        /* FOOTER */
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            margin-top: 35px;
+        }
+
+        .signature {
+            text-align: center;
+            width: 200px;
+        }
+
+        .signature-line {
+            border-top: 1px solid #333;
+            margin-top: 35px;
+            padding-top: 6px;
+        }
+
+        .status {
+            text-align: center;
+            color: green;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        /* BUTTONS */
+
+        .buttons {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        button {
+            background: #173b63;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            margin: 5px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        button:hover {
+            background: #0e2947;
+        }
+
+        /* PRINT */
+
+        @media print {
+
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .buttons {
+                display: none;
+            }
+
+            .certificate {
+                box-shadow: none;
+            }
+
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 650px) {
+
+            body {
+                padding: 10px;
+            }
+
+            .certificate-inner {
+                padding: 20px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .validity {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .footer {
+                flex-direction: column;
+                gap: 25px;
+                align-items: center;
+            }
+
+            .title h1 {
+                font-size: 28px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div>
+
+    <div class="certificate">
+
+        <div class="certificate-inner">
+
+            <div class="content">
+
+                <!-- HEADER -->
+
+                <div class="header">
+  <div class="logo">⚖️</div>
+
+                    <div class="government">
+                        DIGITAL VERIFICATION SYSTEM
+                    </div>
+
+                    <div class="department">
+                        Measurement  Complaince
+                    </div>
+
+                    <div class="system">
+                        Online Verification & Certification Portal
+                    </div>
+
+                </div>
+
+
+                <!-- TITLE -->
+
+                <div class="title">
+
+                    <h1>VERIFIED CERTIFICATE</h1>
+
+                    <p>WEIGHING & MEASURING INSTRUMENT</p>
+
+                </div>
+
+
+                <!-- VERIFIED BADGE -->
+
+                <div class="verified">
+
+                    ✓<br>
+                    VERIFIED
+
+                </div>
+
+
+                <!-- CERTIFICATE NUMBER -->
+
+                <div class="certificate-number">
+
+                    Certificate No:
+                    <span id="certificateNumber">Loading...</span>
+
+                </div>
+
+
+                <!-- INFORMATION -->
+
+                <div class="info-box">
+
+                    <div class="info-title">
+                        APPLICANT INFORMATION
+                    </div>
+
+                    <div class="info-grid">
+
+                        <div class="info">
+                            <b>Application ID:</b>
+                            <span id="applicationNumber">Loading...</span>
+                        </div>
+
+                        <div class="info">
+                            <b>User ID:</b>
+                            <span id="userId">Loading...</span>
+                        </div>
+
+                        <div class="info">
+                            <b>Applicant Name:</b>
+                            <span id="applicantName">Loading...</span>
+                        </div>
+
+                        <div class="info">
+                            <b>Mobile Number:</b>
+                            <span id="mobile">Loading...</span>
+                        </div>
+
+                        <div class="info">
+                            <b>Business / Shop:</b>
+                            <span id="business">Loading...</span>
+                        </div>
+
+                        <div class="info">
+                            <b>Address:</b>
+                            <span id="address">Loading...</span>
+                        </div>
+
+                        <div class="info">
+                            <b>Preferred Verification Date:</b>
+                            <span id="preferredDate">Loading...</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="info-box">
+
+                    <div class="info-title">
+                        INSTRUMENT INFORMATION
+                    </div>
+
+                    <div class="info-grid">
+
+                        <div class="info">
+                            <b>Instrument:</b>
+                            <span id="instrument">Loading...</span>
+                        </div>
+
+                        <div class="info">
+                            <b>Manufacturer:</b>
+                            <span id="manufacturer">Loading...</span>
+                        </div>
+
+                        <div class="info">
+                            <b>Model:</b>
+                            <span id="model">Loading...</span>
+                        </div>
+
+                        <div class="info">
+                            <b>Serial Number:</b>
+                            <span id="serial">Loading...</span>
+                        </div>
+
+                        <div class="info">
+                            <b>Capacity:</b>
+                            <span id="capacity">Loading...</span>
+                        </div>
+
+                        <div class="info">
+                            <b>Verification Type:</b>
+                            <span id="verificationType">Loading...</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- VALIDITY -->
+
+                <div class="validity">
+
+                    <div class="date-box">
+
+                        <b>ISSUE DATE</b>
+
+                        <span id="issueDate">Loading...</span>
+
+                    </div>
+
+
+                    <div class="date-box">
+
+                        <b>VALID UNTIL</b>
+
+                        <span id="validUntil">Loading...</span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- QR -->
+
+                <div class="qr-section">
+
+                    <div class="qr-box">
+
+                        <!-- QR CODE -->
+
+                        <img
+                        id="qrCode"
+                        src=""
+                        alt="QR Code">
+
+                    </div>
+
+                    <div class="scan">
+                        Scan QR code to verify certificate authenticity
+                    </div>
+
+                </div>
+
+
+                <!-- FOOTER -->
+
+                <div class="footer">
+
+                    <div class="signature">
+
+                        <div class="signature-line">
+                            Authorized Officer
+                        </div>
+
+                        Measurement  Complaince Department
+
+                    </div>
+
+
+                    <div class="status">
+
+                        ✓ CERTIFICATE VALID
+
+                    </div>
+
+
+                    <div class="signature">
+
+                        <div class="signature-line">
+                            Digital Signature
+                        </div>
+
+                        Verification Authority
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- BUTTONS -->
+
+    <div class="buttons">
+
+        <button onclick="window.print()">
+            🖨️ Print Certificate
+        </button>
+
+        <button onclick="window.location.href='verify.html'">
+            🔍 Verify Certificate
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+const applicationId = new URLSearchParams(window.location.search).get("applicationId") ||
+    localStorage.getItem("selectedApplication");
+const certificateApplication = applicationId && JSON.parse(
+    localStorage.getItem("application_" + applicationId)
+);
+const certificate = applicationId && JSON.parse(
+    localStorage.getItem("certificate_" + applicationId)
+);
+
+function formatDate(value) {
+    return new Date(value).toLocaleDateString("en-GB", {
+        day: "numeric", month: "long", year: "numeric"
+    });
+}
+
+if (!certificateApplication || !certificate || certificateApplication.status !== "Verified" ||
+    certificateApplication.userId !== activeUserId) {
+    document.querySelector(".certificate").innerHTML =
+        "<div class=\"certificate-inner\"><div class=\"content\"><h1>Certificate unavailable</h1><p>Please open a verified application from the officer dashboard.</p></div></div>";
+} else {
+    const issueDate = new Date(certificate.issueDate);
+    const expiryDate = new Date(certificate.issueDate);
+    expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+    const values = {
+        certificateNumber: certificate.certificateNumber,
+        applicationNumber: certificateApplication.applicationId,
+        userId: certificateApplication.userId,
+        applicantName: certificateApplication.name,
+        mobile: certificateApplication.mobile,
+        business: certificateApplication.business,
+        address: certificateApplication.address,
+        preferredDate: certificateApplication.date ? formatDate(certificateApplication.date) : "Not provided",
+        instrument: certificateApplication.instrument,
+        manufacturer: certificateApplication.manufacturer,
+        model: certificateApplication.model,
+        serial: certificateApplication.serial,
+        capacity: certificateApplication.capacity,
+        verificationType: certificateApplication.verificationType,
+        issueDate: formatDate(issueDate),
+        validUntil: formatDate(expiryDate)
+    };
+
+    Object.entries(values).forEach(([id, value]) => {
+        document.getElementById(id).textContent = value || "Not provided";
+    });
+
+    const qrDetails = JSON.stringify({
+        certificateNumber: certificate.certificateNumber,
+        applicationId: certificateApplication.applicationId,
+        applicant: certificateApplication.name,
+        business: certificateApplication.business,
+        address: certificateApplication.address,
+        mobile: certificateApplication.mobile,
+        instrument: certificateApplication.instrument,
+        manufacturer: certificateApplication.manufacturer,
+        model: certificateApplication.model,
+        serialNumber: certificateApplication.serial,
+        capacity: certificateApplication.capacity,
+        verificationType: certificateApplication.verificationType,
+        issueDate: issueDate.toISOString(),
+        validUntil: expiryDate.toISOString()
+    });
+    document.getElementById("qrCode").src =
+        "https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=" + encodeURIComponent(qrDetails);
+}
+</script>
+
+</body>
+
+</html>

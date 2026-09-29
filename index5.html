@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Officer Dashboard</title>
+   <link rel="stylesheet" href="style.css">
+    <script>
+        if (localStorage.getItem("userRole") !== "officer") {
+            window.location.replace("index.html");
+        }
+    </script>
+</head>
+
+<body>
+
+<header>
+    <h2>⚖️ Measurement  Complaince - Officer Portal</h2>
+    <div class="header-actions">
+        <a href="index6.html">Inspection</a>
+        <a href="index.html" onclick="localStorage.removeItem('userRole'); localStorage.removeItem('loggedInUserId')">Logout</a>
+    </div>
+</header>
+
+<button onclick="window.location.href='new officer registration system.html'">
+    Manage Officer Access
+</button>
+
+<div class="container">
+
+    <h1>Officer Dashboard</h1>
+
+    <div class="cards">
+
+        <div class="card">
+            <h3 id="total">0</h3>
+            <p>Total Applications</p>
+        </div>
+
+        <div class="card">
+            <h3 id="pending">0</h3>
+            <p>Pending</p>
+        </div>
+
+    </div>
+
+    <h2>Received Applications</h2>
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>Application ID</th>
+                <th>Applicant</th>
+                <th>Instrument</th>
+                <th>Verification Type</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody id="applicationTable">
+        </tbody>
+
+    </table>
+
+</div>
+
+<script>
+
+function loadApplications() {
+
+    let applications =
+        JSON.parse(localStorage.getItem("applications")) || [];
+
+    let table =
+        document.getElementById("applicationTable");
+
+    table.innerHTML = "";
+
+    let pending = 0;
+
+    applications.forEach(function(id) {
+
+        let data =
+            JSON.parse(localStorage.getItem("application_" + id));
+
+        if (!data) return;
+
+        if (data.status === "Pending") {
+            pending++;
+        }
+
+        let row = `
+        <tr>
+
+            <td>${data.applicationId}</td>
+
+            <td>${data.name}</td>
+
+            <td>${data.instrument}</td>
+
+            <td>${data.verificationType}</td>
+
+            <td>${data.status}</td>
+
+            <td>
+                ${data.status === "Verified"
+                    ? "Certificate issued"
+                    : `<button onclick="openApplication('${data.applicationId}')">Open Application & Inspect</button>`}
+            </td>
+
+        </tr>
+        `;
+
+        table.innerHTML += row;
+    });
+
+    document.getElementById("total").innerText =
+        applications.length;
+
+    document.getElementById("pending").innerText =
+        pending;
+}
+
+
+function openApplication(id) {
+
+    localStorage.setItem(
+        "selectedApplication",
+        id
+    );
+
+    window.location.href =
+        "index6.html";
+}
+
+loadApplications();
+
+</script>
+
+</body>
+</html>
